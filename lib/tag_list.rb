@@ -14,12 +14,12 @@ class TagList < Array
     end
 
     def format_level(string)
-      returning [] do |result|
-        string.split(level_delimiter).map(&:strip).each do |x|
-          x.sub!(/"(.*?)"/,'\1')
-          result << x unless x.blank?
-        end
+      result = []
+      string.split(level_delimiter).map(&:strip).each do |x|
+        x.sub!(/"(.*?)"/,'\1')
+        result << x unless x.blank?
       end
+      return result.join(level_delimiter)
     end
   end
 end

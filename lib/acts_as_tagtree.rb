@@ -11,6 +11,7 @@ module ActiveRecord #:nodoc:
           has_many :tags,:through => :taggings
           include ActiveRecord::Acts::Tagtree::InstanceMethods
           extend ActiveRecord::Acts::Tagtree::SingletonMethods
+          after_save :save_tags
         end
       end
       
@@ -21,6 +22,19 @@ module ActiveRecord #:nodoc:
 
         def tag_list=(value)
           @tag_list = TagList.format_tag(value)
+        end
+
+        def save_tags
+          new_tags_name = @tag_list - tags.map(&:fullname)
+          outdate_tags = tags.reject {|tag| @tag_list.include?(tag.fullname)}
+          self.class.transaction do
+            if outdate_tags.any?
+              taggings.find(:all,:conditions => ["tag_id IN (?)",outdate_tags.map(&:id)]).each(&:destroy)
+            end
+            new_tags_name.each do |name|
+              tags << Tag.find_or_create_with_name(name)
+            end
+          end
         end
       end
     end
