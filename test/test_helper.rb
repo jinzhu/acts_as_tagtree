@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/app_root/config/environment'
 require 'test_help'
+require 'rubygems'
+require 'shoulda'
 
 # Run the migrations
 ActiveRecord::Migration.verbose = false

@@ -1,8 +1,8 @@
 require 'test_helper'
 
 class TopicTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
-  test "the truth" do
-    assert true
-  end
+  should_have_db_columns :title
+  should_have_many :taggings
+  should_have_many :tags
+
 end
