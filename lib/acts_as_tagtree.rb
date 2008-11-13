@@ -18,6 +18,10 @@ module ActiveRecord #:nodoc:
       end
       
       module InstanceMethods
+
+        def tag_list=(value)
+          @tag_list = TagList.from(value)
+        end
       end
     end
   end
