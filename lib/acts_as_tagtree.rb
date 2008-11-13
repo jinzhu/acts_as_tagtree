@@ -20,7 +20,7 @@ module ActiveRecord #:nodoc:
       module InstanceMethods
 
         def tag_list=(value)
-          @tag_list = TagList.from(value)
+          @tag_list = TagList.format_tag(value)
         end
       end
     end
