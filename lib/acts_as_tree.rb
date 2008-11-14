@@ -92,15 +92,16 @@ module ActiveRecord
         end
 
         def all_related
-          children_without_self.concat(self_and_siblings)
+          # Order is [self,children,parent]
+          children_with_self.concat(siblings)
         end
 
         def children_with_self
-          return children_without_self.concat([self])
+          [self].concat(children_without_self)
         end
 
         def children_without_self
-          return self.class.find(:all,:conditions => ["fullname LIKE ?","#{self.fullname}>"+"%"])
+          self.class.find(:all,:conditions => ["fullname LIKE ?","#{self.fullname}>"+"%"],:order => 'fullname')
         end
       end
     end
