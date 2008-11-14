@@ -16,12 +16,26 @@ module ActiveRecord #:nodoc:
       end
       
       module SingletonMethods
+        def cached_tag_list_column
+          "cached_tag_list"
+        end
+
+        def set_cached_tag_list_column(value = nil, &block)
+          define_attr_method :cached_tag_list_column_name, value, &block
+        end
+
+        def caching_tag_list?
+          column_names.include?(cached_tag_list_column)
+        end
       end
       
       module InstanceMethods
 
         def tag_list=(value)
           @tag_list = TagList.format_tag(value)
+          if self.class.caching_tag_list?
+            self[self.class.cached_tag_list_column]= @tag_list.join(';')
+          end
         end
 
         def save_tags

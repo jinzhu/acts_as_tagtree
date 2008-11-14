@@ -2,6 +2,7 @@ class CreateTopics < ActiveRecord::Migration
   def self.up
     create_table :topics do |t|
       t.string :title
+      t.string :cached_tag_list
 
       t.timestamps
     end

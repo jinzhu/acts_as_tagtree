@@ -50,4 +50,13 @@ class TopicTest < ActiveSupport::TestCase
         assert_equal @vimrails.find_related,[@vim]
       end
   end
+
+  should "cached_tag_list?" do
+    assert Topic.caching_tag_list?
+  end
+
+  should "cache tag_list successly" do
+    topic = Topic.create(:title => "topic",:tag_list => 'linux>vim> plugin ;ruby>rails')
+    assert_equal topic.cached_tag_list,'linux>vim>plugin;ruby>rails'
+  end
 end
