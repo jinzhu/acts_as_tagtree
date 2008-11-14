@@ -2,55 +2,68 @@ require 'test_helper'
 
 class TagTest < ActiveSupport::TestCase
 
-  tags = [
-    ['linux',1],
-    ['linux>vim',2],
-    ['linux>vim>plugin',3],
-    ['>linux>vim>plugin',3],
-    ['linux>vim>plugin>a>b>c>d',7],
-  ]
-  tags.each do |x,num|
-    should "\"#{x}\" should create #{num} tags and return the last tag" do
-      Tag.delete_all
-      result = Tag.find_or_create_with_name(x)
-      assert_equal result,Tag.first(:conditions => ['fullname LIKE ?',x.sub(/^>/,'')])
-      assert_equal Tag.count,num
+  context "When create single tag from scratch" do
+    tags = [
+      ['linux',1],
+      ['linux>vim',2],
+      ['linux>vim>plugin',3],
+      ['>linux>vim>plugin',3],
+      ['linux>vim>plugin>a>b>c>d',7],
+    ]
+    tags.each do |x,num|
+      should "\"#{x}\" should create #{num} tags and return the last tag" do
+        Tag.delete_all
+        result = Tag.find_or_create_with_name(x)
+        assert_equal Tag.count,num
+      end
+    end
+
+    tags.each do |x,num|
+      should "\"#{x}\" should return the last tag" do
+        Tag.delete_all
+        result = Tag.find_or_create_with_name(x)
+        assert_equal result,Tag.first(:conditions => ['fullname LIKE ?',x.sub(/^>/,'')])
+      end
     end
   end
 
-  should "should keep uniq" do
-    Tag.delete_all
 
-    tag = 'linux>vim>plugin'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,3
+  context "Ignore old tags" do
+    setup do
+      Tag.delete_all
+      assert_difference 'Tag.count',3 do
+        tag = 'linux>vim>plugin'
+        Tag.find_or_create_with_name(tag)
+      end
+    end
 
-    tag = 'linux>vim>plugin'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,3
+    should "not create tags when only use old tags" do
+      assert_difference 'Tag.count',0 do
+        tag = 'linux>vim>plugin'
+        Tag.find_or_create_with_name(tag)
+      end
+    end
 
-    tag = 'vim>plugin>rails.vim'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,4
+    should "use old tags when add new tags" do
+      assert_difference 'Tag.count',1 do
+        tag = 'vim>plugin>rails.vim'
+        Tag.find_or_create_with_name(tag)
+      end
+      assert_difference 'Tag.count',1 do
+        tag = 'linux>emacs'
+        Tag.find_or_create_with_name(tag)
+      end
+      assert_difference 'Tag.count',1 do
+        tag = 'linux>emacs>plugin'
+        Tag.find_or_create_with_name(tag)
+      end
+    end
 
-    tag = 'linux>emacs'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,5
-
-    tag = 'linux>emacs>plugin'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,6
-
-    tag = 'emacs>plugin>lisp.el'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,7
-
-    tag = '>emacs>plugin>lisp.el'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,10
-
-    tag = '>linux>vim'
-    Tag.find_or_create_with_name(tag)
-    assert_equal Tag.count,10
+    should "Create New tag or use the root tag when use >.." do
+      assert_difference 'Tag.count',2 do
+        tag = '>vim>plugin'
+        Tag.find_or_create_with_name(tag)
+      end
+    end
   end
 end

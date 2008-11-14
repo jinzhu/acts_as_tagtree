@@ -9,29 +9,25 @@ class Tag < ActiveRecord::Base
 
   def self.find_or_create_with_name(name)
     tags = name.split('>')
-    return find_treetag(tags)
+    return create_treetag(tags)
   end
 
-  def self.find_treetag(tags)
-    return create_treetag(tags[1...tags.size]) if tags[0].blank?
-
-    ptag = []
-    (0...tags.size).each do |x|
-      unless ptag.blank?
-        ptag << ptag[x-1].children.first(:conditions => ['name LIKE ? ',tags[x]])
-      else
-        ptag << Tag.first(:conditions => ['name LIKE ? ',tags[x]])
-      end
-      ((ptag << create_treetag(tags[x...tags.size],ptag[x-1])) && break) unless ptag[x]
+  def self.create_treetag(tags)
+    unless tags[0].empty?
+      # find the parent tag if exist tags[0]
+      ptag = Tag.first(:conditions => ['name LIKE ? ',tags[0]])
+      # '[linux,vim]' if havn't find linux then tags became ['',linux,vim]
+      tags[0,0]= '' unless ptag
+    else
+      ptag = nil
     end
-    return ptag.last
-  end
 
-  def self.create_treetag(tags, ptag=nil)
-    tags.each do |x|    
-      unless ptag.blank?
+    tags[1...tags.size].each do |x|
+      if ptag
+        # if exist parent tag then find or create child tag
         ptag = ptag.children.find_or_create_by_name_and_fullname(x,ptag.fullname+'>'+x)
       else
+        # if doesn't exist parent tag then find or create then parent tag
         ptag = Tag.find_or_create_by_name_and_fullname(x,x)
       end
     end
