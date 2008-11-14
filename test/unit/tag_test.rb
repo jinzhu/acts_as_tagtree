@@ -42,6 +42,10 @@ class TagTest < ActiveSupport::TestCase
         tag = 'linux>vim>plugin'
         Tag.find_or_create_with_name(tag)
       end
+      assert_difference 'Tag.count',0 do
+        tag = 'linux>Vim>Plugin'
+        Tag.find_or_create_with_name(tag)
+      end
     end
 
     should "use old tags when add new tags" do
@@ -49,12 +53,19 @@ class TagTest < ActiveSupport::TestCase
         tag = 'vim>plugin>rails.vim'
         Tag.find_or_create_with_name(tag)
       end
+
+      assert_difference 'Tag.count',0 do
+        tag = 'vim>plugin>raIls.Vim'
+        Tag.find_or_create_with_name(tag)
+      end
+
       assert_difference 'Tag.count',1 do
         tag = 'linux>emacs'
         Tag.find_or_create_with_name(tag)
       end
+
       assert_difference 'Tag.count',1 do
-        tag = 'linux>emacs>plugin'
+        tag = 'Linux>emacs>plugin'
         Tag.find_or_create_with_name(tag)
       end
     end

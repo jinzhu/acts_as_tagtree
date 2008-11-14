@@ -33,4 +33,11 @@ class Tag < ActiveRecord::Base
     end
     return ptag
   end
+
+  def self.find_or_create_by_name_and_fullname(name,fullname)
+    # doesn't case sensitive 
+    tag = Tag.first(:conditions => ['fullname LIKE ?',fullname])    
+    tag = Tag.create(:name => name,:fullname => fullname) unless tag
+    return tag
+  end
 end
