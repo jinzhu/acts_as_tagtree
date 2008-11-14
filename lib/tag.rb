@@ -4,15 +4,12 @@ class Tag < ActiveRecord::Base
   acts_as_tree
 
   def to_s
-    name
+    fullname
   end
 
   def self.find_or_create_with_name(name)
     tags = name.split('>')
-    return create_treetag(tags)
-  end
 
-  def self.create_treetag(tags)
     unless tags[0].empty?
       # find the parent tag if exist tags[0]
       ptag = Tag.first(:conditions => ['name LIKE ? ',tags[0]])
