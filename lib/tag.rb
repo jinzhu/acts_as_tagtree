@@ -6,6 +6,14 @@ class Tag < ActiveRecord::Base
   validates_presence_of :name,:fullname
   validates_uniqueness_of :fullname
 
+  alias_method :orig_destroy, :destroy
+  def destroy
+    ancestors_with_self = [self].concat(self.ancestors)
+    ancestors_with_self.each do |x|
+      (x.children? || x.taggings?) ? break : x.delete
+    end
+  end
+
   def to_s
     fullname
   end
@@ -39,5 +47,13 @@ class Tag < ActiveRecord::Base
     tag = Tag.first(:conditions => ['fullname LIKE ?',fullname])    
     tag = Tag.create(:name => name,:fullname => fullname) unless tag
     return tag
+  end
+
+  def children?
+    children_without_self.size > 0
+  end
+
+  def taggings?
+    taggings.size > 0
   end
 end

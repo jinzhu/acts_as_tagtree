@@ -101,28 +101,35 @@ class TagTest < ActiveSupport::TestCase
     assert_equal linuxemacs.all_related.size,3
   end
 
-#  context "When Update" do
-#    setup do
-#      Tag.delete_all
-#      assert_difference 'Tag.count',3 do
-#        tag = 'linux>vim>plugin'
-#        Tag.find_or_create_with_name(tag)
-#      end
-#    end
-#
-#    should "change children's fullname when change self's name" do
-#      tag = Tag.find_by_name('vim')
-#      assert_equal tag.fullname,'linux>vim'
-#      tag.update_attribute(:name,'emacs')
-#      assert_equal tag.name,'emacs'
-#      assert_equal tag.fullname,'linux>emacs'
-#      assert_equal tag.children.first.fullname,'linux>emacs>plugin'
-#    end
-#
-#    should "change self and children's fullname when change self's parent" do
-#    end
-#
-#    should "destroy all parents tag if useless" do
-#    end
-#  end
+  should "children?" do
+    Tag.delete_all
+    last_tag = Tag.find_or_create_with_name('linux>emacs>plugin')
+    assert !last_tag.children?
+    assert Tag.find_by_name('linux').children?
+  end
+
+  should "taggings?" do
+    Tag.delete_all && Topic.delete_all
+    Topic.create(:title => 'title',:tag_list => 'linux>vim>plugin')
+    Tag.find_or_create_with_name('linux>emacs>plugin')
+    assert Tag.find_by_fullname('linux>vim>plugin').taggings?
+    assert !Tag.find_by_name('emacs').taggings?
+  end
+
+  should "should destroy all useless ancestors" do
+    Tag.delete_all
+    Tag.find_or_create_with_name('linux>emacs>plugin>rails.el')
+    assert_difference 'Tag.count',-4 do
+      Tag.find_by_name("rails.el").destroy
+    end
+  end
+
+  should "shouldn't destroy helpful ancestors" do
+    Tag.delete_all
+    Tag.find_or_create_with_name('linux>emacs>plugin>rails.el')
+    Tag.find_or_create_with_name('linux>emacs>plugin>perl.el')
+    assert_difference 'Tag.count',-1 do
+      Tag.find_by_name("rails.el").destroy
+    end
+  end
 end
