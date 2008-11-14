@@ -41,7 +41,7 @@ module ActiveRecord #:nodoc:
           result = []
           tags.each do |x|
             x.all_related.each do |x|
-              x.taggings.each do |x| #send(self.class.table_name)
+              x.taggings.each do |x|
                 result << [x.taggable] if x.taggable.class == self.class
               end
             end

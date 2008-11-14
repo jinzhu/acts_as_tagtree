@@ -34,7 +34,8 @@ class TopicTest < ActiveSupport::TestCase
       assert_equal @vim.find_related,[@vimrails,@emacs]
     end
 
-    should "should find rails.vim use vim" do
+    should "should find vim use rails.vim" do
+      assert_equal @vimrails.find_related,[@vim]
     end
   end
 end

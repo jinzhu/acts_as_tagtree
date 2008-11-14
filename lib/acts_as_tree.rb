@@ -93,7 +93,7 @@ module ActiveRecord
 
         def all_related
           # Order is [self,children,parent]
-          children_with_self.concat(siblings)
+          children_with_self.concat(ancestors)
         end
 
         def children_with_self
