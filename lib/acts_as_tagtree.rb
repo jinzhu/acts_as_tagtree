@@ -36,7 +36,20 @@ module ActiveRecord #:nodoc:
             end
           end
         end
+
+        def find_related
+          result = []
+          tags.each do |x|
+            x.all_related.each do |x|
+              x.taggings.each do |x| #send(self.class.table_name)
+                result << [x.taggable] if x.taggable.class == self.class
+              end
+            end
+          end
+          return (result.flatten.uniq - [self])
+        end
       end
+
     end
   end
 end

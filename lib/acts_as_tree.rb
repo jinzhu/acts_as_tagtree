@@ -90,6 +90,18 @@ module ActiveRecord
         def self_and_siblings
           parent ? parent.children : self.class.roots
         end
+
+        def all_related
+          children_without_self.concat(self_and_siblings)
+        end
+
+        def children_with_self
+          return children_without_self.concat([self])
+        end
+
+        def children_without_self
+          return self.class.find(:all,:conditions => ["fullname LIKE ?","#{self.fullname}>"+"%"])
+        end
       end
     end
   end

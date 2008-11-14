@@ -79,4 +79,50 @@ class TagTest < ActiveSupport::TestCase
       end
     end
   end
+
+  should "self_and_children should be correct" do
+    Tag.delete_all
+    tag = 'linux>emacs>plugin'
+    Tag.find_or_create_with_name(tag)
+    linux = Tag.find_by_name('linux')
+    assert_equal linux.children_without_self.size,2
+    assert_equal linux.children_with_self.size,3
+  end
+
+  should "all_related should be correct" do
+    Tag.delete_all
+    Tag.find_or_create_with_name('linux>emacs>plugin')
+    Tag.find_or_create_with_name('linux>vim>plugin')
+    Tag.find_or_create_with_name('vim>plugin>rails.vim')
+    Tag.find_or_create_with_name('os>linux>vim')
+    linuxvim = Tag.find_by_fullname('linux>vim')
+    assert_equal linuxvim.all_related.size,4
+    linuxemacs = Tag.find_by_fullname('linux>emacs')
+    assert_equal linuxemacs.all_related.size,3
+  end
+
+#  context "When Update" do
+#    setup do
+#      Tag.delete_all
+#      assert_difference 'Tag.count',3 do
+#        tag = 'linux>vim>plugin'
+#        Tag.find_or_create_with_name(tag)
+#      end
+#    end
+#
+#    should "change children's fullname when change self's name" do
+#      tag = Tag.find_by_name('vim')
+#      assert_equal tag.fullname,'linux>vim'
+#      tag.update_attribute(:name,'emacs')
+#      assert_equal tag.name,'emacs'
+#      assert_equal tag.fullname,'linux>emacs'
+#      assert_equal tag.children.first.fullname,'linux>emacs>plugin'
+#    end
+#
+#    should "change self and children's fullname when change self's parent" do
+#    end
+#
+#    should "destroy all parents tag if useless" do
+#    end
+#  end
 end
