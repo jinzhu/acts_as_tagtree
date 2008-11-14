@@ -3,6 +3,9 @@ class Tag < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
   acts_as_tree
 
+  validates_presence_of :name,:fullname
+  validates_uniqueness_of :fullname
+
   def to_s
     fullname
   end

@@ -11,6 +11,7 @@ class TopicTest < ActiveSupport::TestCase
     ['linux>vim>plugin;emacs',4],
     ['linux>vim>plugin;emacs>plugin',5],
     ['linux>vim>plugin;linux>gentoo',4],
+    ['linux>vim>plugin;Linux>gentoo',4],
   ]
 
   tag_lists.each do |tag,num|
