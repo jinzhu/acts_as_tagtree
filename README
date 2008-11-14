@@ -1,13 +1,41 @@
 ActsAsTagtree
 =============
 
-Introduction goes here.
+== Installation
 
+  $ ruby script/plugin install git://github.com/wosmvp/acts_as_tagtree.git
 
-Example
-=======
+== Usage
 
-Example goes here.
+=== Prepare database
 
+  Generate and apply the migration:
 
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+  $ ruby script/generate acts_as_tagtree
+  $ rake db:migrate
+
+=== Basic tagging
+
+  class Topic < ActiveRecord::Base
+    acts_as_tagtree
+  end
+
+  t = Topic.find(:first)
+  t.tag_list # []
+  t.tag_list = "linux>vim>plugin;linux>emacs"
+  t.save
+  t.tag_list # ['linux>vim>plugin','ruby>rails']
+
+  # Find Related Topic
+  t.find_related(:num => 10,:key => 'updated_at',:reverse => true)
+
+=== Caching
+
+  class CacheTopicTagList < ActiveRecord::Migration
+    def self.up
+      add_column :topics, :cached_tag_list, :string
+    end
+  end
+
+==
+Copyright (c) 2008 <Zhang Jinzhu>, released under the MIT license

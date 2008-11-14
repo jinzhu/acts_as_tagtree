@@ -32,11 +32,11 @@ module ActiveRecord #:nodoc:
       module InstanceMethods
 
         def tag_list
-          return @tag_list.join(';') if @tag_list
+          return @tag_list if @tag_list
           if self.class.caching_tag_list?
-            return self[self.class.cached_tag_list_column_name]
+            TagList.format_tag(self[self.class.cached_tag_list_column_name])
           else
-            return tags.join(';')
+            tags
           end
         end
 

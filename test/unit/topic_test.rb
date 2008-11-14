@@ -58,6 +58,6 @@ class TopicTest < ActiveSupport::TestCase
   should "cache tag_list successly" do
     topic = Topic.create(:title => "topic",:tag_list => 'linux>vim> plugin ;ruby>rails')
     assert_equal topic.cached_tag_list,'linux>vim>plugin;ruby>rails'
-    assert_equal topic.reload.tag_list,'linux>vim>plugin;ruby>rails'
+    assert_equal topic.reload.tag_list,['linux>vim>plugin','ruby>rails']
   end
 end
