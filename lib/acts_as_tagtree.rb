@@ -37,7 +37,10 @@ module ActiveRecord #:nodoc:
           end
         end
 
-        def find_related
+        def find_related(options={})
+          key = options[:order] || self.class.primary_key
+          num = options[:num] || 10
+
           result = []
           tags.each do |x|
             x.all_related.each do |x|
@@ -46,7 +49,9 @@ module ActiveRecord #:nodoc:
               end
             end
           end
-          return (result.flatten.uniq - [self])
+          result= (result.flatten.uniq - [self]).sort {|x,y| x.send(key) <=> y.send(key)}
+          result.reverse! if options[:reverse]
+          return result[0...num]
         end
       end
 
