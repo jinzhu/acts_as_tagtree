@@ -35,15 +35,17 @@ class TopicTest < ActiveSupport::TestCase
       end
 
       should "test reverse" do
-        assert_equal @vim.find_related({:num => 10,:reverse => true}),[@emacs,@vimrails]
+        assert_equal @vim.find_related({:reverse => true}),[@emacs,@vimrails]
       end
 
       should "test order" do
-        assert_equal @vim.find_related({:num => 10,:order => "title"}),[@emacs,@vimrails]
+        assert_equal @vim.find_related({:order => "title"}),[@emacs,@vimrails]
       end
 
       should "test related's quantity" do
-        assert_equal @vim.find_related(:num => 1).size,1
+        assert_equal @vim.find_related(:num => [0,1]).size,1
+        assert_equal @vim.find_related(:num => [0,2]).size,2
+        assert_equal @vim.find_related(:num => [0,3]).size,2 #out of range
       end
 
       should "should find vim use rails.vim" do

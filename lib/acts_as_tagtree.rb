@@ -4,7 +4,7 @@ module ActiveRecord #:nodoc:
       def self.included(base)
         base.extend(ClassMethods)
       end
-      
+
       module ClassMethods
         def acts_as_tagtree
           has_many :taggings,:as => :taggable,:dependent => :destroy,:include => :tag
@@ -14,7 +14,7 @@ module ActiveRecord #:nodoc:
           after_save :save_tags
         end
       end
-      
+
       module SingletonMethods
         def cached_tag_list_column
           "cached_tag_list"
@@ -28,7 +28,7 @@ module ActiveRecord #:nodoc:
           column_names.include?(cached_tag_list_column)
         end
       end
-      
+
       module InstanceMethods
 
         def tag_list
@@ -62,22 +62,19 @@ module ActiveRecord #:nodoc:
 
         def find_related(options={})
           key = options[:order] || self.class.primary_key
-          num = options[:num] || 10
+          num = options[:num] || [0,10]
+          reverse = options[:reverse] ? "DESC" : "ASC" #TODO use cached_tag_list
 
-          result = []
+          all_id = []
           tags.each do |x|
             x.all_related.each do |x|
-              x.taggings.each do |x|
-                result << [x.taggable] if x.taggable.class == self.class
+              all_id.concat(x.taggings(:conditions => ['taggable_type IS ?',self.class]).map(&:taggable_id))
               end
             end
-          end
-          result= (result.flatten.uniq - [self]).sort {|x,y| x.send(key) <=> y.send(key)}
-          result.reverse! if options[:reverse]
-          return result[0...num]
+          id_range = (all_id - [self.id]).uniq.join(',')
+          self.class.all(:conditions =>["id IN (#{id_range})"],:order => "#{key} #{reverse}",:limit => num.join(','))
         end
       end
-
     end
   end
 end
