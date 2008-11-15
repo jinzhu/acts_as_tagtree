@@ -15,6 +15,7 @@ ActsAsTagtree
   $ rake db:migrate
 
 === Basic tagging
+------------------------------
 
   class Topic < ActiveRecord::Base
     acts_as_tagtree
@@ -22,12 +23,26 @@ ActsAsTagtree
 
   t = Topic.find(:first)
   t.tag_list # []
-  t.tag_list = "linux>vim>plugin;linux>emacs"
+  t.tag_list = "linux>vim>plugin;ruby>rails"
   t.save
   t.tag_list # ['linux>vim>plugin','ruby>rails']
 
-  # Find Related Topic
-  t.find_related(:num => 10,:key => 'updated_at',:reverse => true)
+------------------------------
+
+  t.tag_list = "linux>vim>plugin;ruby>rails"
+  t.tag_list = "Linux>emacs>plugin"
+  ## Tag $id     $name    $fullname         $parent_id
+         1       linux    linux               NULL
+         2       vim      linux>vim           1
+         3       plugin   linux>vim>plugin    2
+         4       ruby     ruby                NULL
+         5       rails    ruby>rails          4
+         6       emacs    linux>emacs         1
+         7       plugin   linux>emacs>plugin  6
+
+------------------------------
+  # Find Related Topic: limit 10,offest 5,order by 'updated_at',DESC
+  t.find_related(:num => [5,10],:key => 'updated_at',:reverse => true)
 
 === Caching
 
