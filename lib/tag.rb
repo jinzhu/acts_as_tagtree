@@ -1,4 +1,5 @@
 require 'acts_as_tree'
+
 class Tag < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
   acts_as_tree
@@ -7,11 +8,14 @@ class Tag < ActiveRecord::Base
   validates_uniqueness_of :fullname
 
   alias_method :orig_destroy, :destroy
+
   def destroy
-    ancestors_with_self = [self].concat(self.ancestors)
-    ancestors_with_self.each do |x|
-      (x.children? || x.taggings?) ? break : x.delete
-    end
+    # [self,self.parent,self.parent.parent...]
+    [self].concat(self.ancestors).map { |x| x.deleteable? ? break : x.delete}
+  end
+
+  def deleteable?
+    children? || taggings?
   end
 
   def to_s
