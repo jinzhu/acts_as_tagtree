@@ -10,7 +10,7 @@ module ActiveRecord #:nodoc:
           has_many :taggings,:as => :taggable,:dependent => :destroy,:include => :tag
           has_many :tags,:through => :taggings
           include ActiveRecord::Acts::Tagtree::InstanceMethods
-          extend ActiveRecord::Acts::Tagtree::SingletonMethods
+          extend  ActiveRecord::Acts::Tagtree::SingletonMethods
           after_save :save_tags
         end
       end
@@ -21,7 +21,7 @@ module ActiveRecord #:nodoc:
         end
 
         def set_cached_tag_list_column(value = nil, &block)
-          define_attr_method :cached_tag_list_column_name, value, &block
+          define_attr_method :cached_tag_list_column, value, &block
         end
 
         def caching_tag_list?

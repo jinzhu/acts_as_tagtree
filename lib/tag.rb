@@ -43,7 +43,7 @@ class Tag < ActiveRecord::Base
         ptag = Tag.find_or_create_by_name_and_fullname(x,x)
       end
     end
-    return ptag
+    return ptag   # return the last find/create tag
   end
 
   def self.find_or_create_by_name_and_fullname(name,fullname)
