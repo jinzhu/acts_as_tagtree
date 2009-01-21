@@ -60,17 +60,19 @@ module ActiveRecord #:nodoc:
         end
 
         def find_related(options={})
-          key = options[:order] || self.class.primary_key
-          num = options[:num] || [0,10]
+          key     = options[:order] || self.class.primary_key
+          num     = options[:num]   || [0,10]
           reverse = options[:reverse] ? "DESC" : "ASC" #TODO use cached_tag_list
 
           all_id = []
           tags.each do |x|
             x.all_related.each do |x|
               all_id.concat(x.taggings(:conditions => ['taggable_type IS ?',self.class]).map(&:taggable_id))
-              end
             end
+          end
+
           id_range = (all_id - [self.id]).uniq.join(',')
+
           self.class.all(:conditions =>["id IN (#{id_range})"],:order => "#{key} #{reverse}",:limit => num.join(','))
         end
       end

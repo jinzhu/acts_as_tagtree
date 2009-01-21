@@ -30,7 +30,7 @@ class TagTest < ActiveSupport::TestCase
   end
 
 
-  context "Ignore old tags" do
+  context "When create tag from old tags" do
     setup do
       Tag.delete_all
       assert_difference 'Tag.count',3 do
@@ -130,6 +130,24 @@ class TagTest < ActiveSupport::TestCase
     Tag.find_or_create_with_name('linux>emacs>plugin>perl.el')
     assert_difference 'Tag.count',-1 do
       Tag.find_by_name("rails.el").destroy
+    end
+  end
+
+  context "When Update Fullname" do
+    setup do
+      Tag.delete_all
+    end
+
+    should "destroy old useless parent" do
+      tag = Tag.find_or_create_with_name('linux>emacs>plugin')
+      Tag.find_or_create_with_name('linux>emacs>plugin>rails')
+      tag.update_attribute(:fullname,'linux>vim>plugin')
+
+      assert_equal tag.parent.to_s,"linux>vim"
+      assert_equal Tag.find_all_by_name('emacs').size,0
+      assert_equal Tag.find_all_by_name('vim').size,1
+      assert_equal Tag.find_by_name('rails').to_s,"linux>vim>plugin>rails"
+      assert_equal Tag.count,4
     end
   end
 end

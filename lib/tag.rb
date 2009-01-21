@@ -8,14 +8,31 @@ class Tag < ActiveRecord::Base
   validates_uniqueness_of :fullname
 
   alias_method :orig_destroy, :destroy
+  attr_accessor :old_parent
+
+  def before_update
+    if fullname_changed?
+      self.fullname   =~ /(.*)>(.*)$/ # FIXME IF Exist!
+      self.name       =  $2
+      self.old_parent =  self.parent
+      self.parent     =  Tag.find_or_create_with_name($1)
+    end
+  end
+
+  def after_update
+    self.old_parent.destroy
+    self.children.map do |x|
+      x.update_attribute(:fullname,fullname + '>' + x.name)
+    end
+  end
 
   def destroy
     # [self,self.parent,self.parent.parent...]
-    [self].concat(self.ancestors).map { |x| x.deleteable? ? break : x.delete}
+    [self].concat(self.ancestors).map { |x| x.deleteable? ? x.delete : break }
   end
 
   def deleteable?
-    children? || taggings?
+    !(children? || taggings?)
   end
 
   def to_s
@@ -54,7 +71,7 @@ class Tag < ActiveRecord::Base
   end
 
   def children?
-    children_without_self.size > 0
+    children.size > 0
   end
 
   def taggings?
