@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'test/test_helper'
 
 class TaggingTest < ActiveSupport::TestCase
   should "destroy useless tag when delete topic" do

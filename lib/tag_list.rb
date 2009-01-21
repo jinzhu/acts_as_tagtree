@@ -5,19 +5,16 @@ class TagList < Array
   self.level_delimiter = '>'
 
   class << self
-    def format_tag(string)
-      returning [] do |result|
-        string.split(delimiter).map(&:strip).uniq.each do |x|
-          result << format_level(x) unless x.blank?
-        end
+    def format_tag(str)
+      return str.to_s.split(delimiter).map(&:strip).uniq.inject([]) do |s,x|
+        s += format_level(x).to_a unless x.blank?
       end
     end
 
     def format_level(string)
-      result = []
-      string.split(level_delimiter).map(&:strip).each do |x|
+      result = string.split(level_delimiter).map(&:strip).inject([]) do |s,x|
         x.sub!(/"(.*?)"/,'\1')
-        result << x unless x.blank?
+        s = ((x.blank?) ? s : (s + x.to_a))
       end
       return result.join(level_delimiter)
     end

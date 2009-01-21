@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'test/test_helper'
 
 class TagTest < ActiveSupport::TestCase
   should_require_attributes :name,:fullname

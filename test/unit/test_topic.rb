@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'test/test_helper'
 
 class TopicTest < ActiveSupport::TestCase
   should_have_db_columns :title
