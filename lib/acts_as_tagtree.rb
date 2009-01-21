@@ -32,11 +32,10 @@ module ActiveRecord #:nodoc:
       module InstanceMethods
 
         def tag_list
-          return @tag_list if @tag_list
           if self.class.caching_tag_list?
-            TagList.format_tag(self[self.class.cached_tag_list_column_name])
+            TagList.format_tag(self[self.class.cached_tag_list_column])
           else
-            tags
+            tags.map(&:fullname)
           end
         end
 
