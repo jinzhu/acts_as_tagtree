@@ -220,4 +220,13 @@ class TagTest < ActiveSupport::TestCase
       assert_equal Tagging.first.tag_id,@tag.id
     end
   end
+
+  should "method_missing all_***" do
+    Tag.delete_all && Tagging.delete_all
+    tag = Tag.find_or_create_with_name('linux')
+    topic = Topic.create(:title => 't1',:tag_list => 'linux')
+    topic = Topic.create(:title => 't2',:tag_list => 'linux')
+    topic = Topic.create(:title => 't3',:tag_list => 'linux')
+    assert_equal tag.all_topics.size,3
+  end
 end

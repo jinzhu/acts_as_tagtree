@@ -91,4 +91,24 @@ class Tag < ActiveRecord::Base
   def taggings?
     taggings.size > 0
   end
+
+  def method_missing(m,*args)
+
+    # tag1.all_articles find all tagged articles by tag1 and tag1's children
+    #
+    # SELECT * FROM articles,taggings WHERE tag_id IN (...) AND
+    # taggable_id = articles.id AND taggable_type = 'Article'
+    if m.to_s.match(/all_(\w+)/)
+      return Tag.find_by_sql([" SELECT * FROM ?,taggings
+                    WHERE taggings.tag_id IN (?)
+                      AND taggable_id     =  ?.id
+                      AND taggable_type   =  ?",
+                      $1,
+                      children_with_self.map(&:id).join(','),
+                      $1,
+                      $1.singularize.capitalize])
+    end
+
+    super
+  end
 end
