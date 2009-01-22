@@ -133,21 +133,91 @@ class TagTest < ActiveSupport::TestCase
     end
   end
 
-  context "When Update Fullname" do
+  #
+  # Update Tag
+  #
+  context "When Update No Exist Fullname" do
     setup do
       Tag.delete_all
+      @tag = Tag.find_or_create_with_name('linux>emacs>plugin')
+      Tag.find_or_create_with_name('linux>emacs>plugin>rails')
     end
 
-    should "destroy old useless parent" do
-      tag = Tag.find_or_create_with_name('linux>emacs>plugin')
-      Tag.find_or_create_with_name('linux>emacs>plugin>rails')
-      tag.update_attribute(:fullname,'linux>vim>plugin')
-
-      assert_equal tag.parent.to_s,"linux>vim"
+    should "create new parent,destroy old useless parent" do
+      @tag.update_attribute(:fullname,'linux>vim>plugin')
       assert_equal Tag.find_all_by_name('emacs').size,0
       assert_equal Tag.find_all_by_name('vim').size,1
-      assert_equal Tag.find_by_name('rails').to_s,"linux>vim>plugin>rails"
       assert_equal Tag.count,4
+    end
+
+    should "not destroy usefull parent" do
+      Tag.find_or_create_with_name('linux>emacs>tips')
+      assert_equal Tag.count,5
+      @tag.update_attribute(:fullname,'linux>vim>plugin')
+      assert_equal Tag.count,6
+    end
+
+    should "change children's fullname" do
+      @tag.update_attribute(:fullname,'linux>vim>plugin')
+      assert_equal Tag.find_by_name('rails').to_s,"linux>vim>plugin>rails"
+    end
+  end
+
+  context "When Update Exist Fullname" do
+    setup do
+      Tag.delete_all
+      @tag = Tag.find_or_create_with_name('linux>emacs>plugin')
+      Tag.find_or_create_with_name('linux>emacs>plugin>rails')
+      Tag.find_or_create_with_name('linux>vim>plugin')
+      @tag.update_attribute(:fullname,'linux>vim>plugin')
+      assert_equal Tag.count,4
+    end
+
+    should "use existed parent,destroy old useless parent" do
+      assert_equal Tag.find_all_by_name('emacs').size,0
+      assert_equal Tag.find_all_by_name('vim').size,1
+    end
+
+    should "change children's fullname" do
+      assert_equal Tag.find_by_name('rails').to_s,"linux>vim>plugin>rails"
+      assert_equal Tag.find_by_name('rails').to_s,"linux>vim>plugin>rails"
+    end
+  end
+
+  context "complex update" do
+    setup do
+      Tag.delete_all
+      @tag = Tag.find_or_create_with_name('linux>emacs>plugin')
+      Tag.find_or_create_with_name('linux>emacs>plugin>rails')
+      Tag.find_or_create_with_name('linux>emacs>plugin>rails>A')
+      Tag.find_or_create_with_name('linux>emacs>plugin>rails>B')
+      Tag.find_or_create_with_name('linux>emacs>plugin>merb>A')
+      Tag.find_or_create_with_name('linux>emacs>plugin>merb>B')
+      Tag.find_or_create_with_name('linux>vim>plugin')
+      Tag.find_or_create_with_name('linux>vim>plugin>rails')
+      Tag.find_or_create_with_name('linux>vim>plugin>rails>A')
+      Tag.find_or_create_with_name('linux>vim>plugin>rails>C')
+    end
+
+    should "Catch origin tag's children" do
+      @tag.update_attribute(:fullname,'linux>vim>plugin')
+      assert_equal Tag.find_all_by_fullname("linux>vim>plugin").size,1
+      assert_equal Tag.find_all_by_fullname("linux>vim>plugin>rails").size,1
+      assert_equal Tag.find_all_by_fullname("linux>vim>plugin>rails>A").size,1
+      assert_equal Tag.find_by_fullname("linux>vim>plugin>rails").children.size,3
+      assert_equal Tag.find_by_fullname("linux>vim>plugin>rails>C").parent.to_s,"linux>vim>plugin>rails"
+    end
+
+    should "Catch origin tag's taggings" do
+      Tagging.delete_all
+      topic   = Topic.create(:title => 'title',:tag_list => 'linux>vim>plugin')
+      vim_a   = Topic.create(:title => 'title',:tag_list => 'linux>vim>plugin>rails>A')
+      emacs_a = Tag.find_or_create_with_name('linux>emacs>plugin>rails>A')
+
+      @tag.update_attribute(:fullname,'linux>vim>plugin')
+
+      assert_equal vim_a.taggings.first.tag_id,emacs_a.id   #origin tag's children's taggings
+      assert_equal Tagging.first.tag_id,@tag.id
     end
   end
 end

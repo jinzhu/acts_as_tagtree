@@ -12,7 +12,15 @@ class Tag < ActiveRecord::Base
 
   def before_update
     if fullname_changed?
-      self.fullname   =~ /(.*)>(.*)$/ # FIXME IF Exist!
+
+      origin = Tag.find_by_fullname(self.fullname)
+      if origin
+        origin.children.map {|x| x.update_attribute(:parent_id,self.id)}
+        origin.taggings.map {|x| x.update_attribute(:tag_id,self.id) }
+        (@orphons_id ||= []) << origin.id
+      end
+
+      self.fullname   =~ /(.*)>(.*)$/
       self.name       =  $2
       self.old_parent =  self.parent
       self.parent     =  Tag.find_or_create_with_name($1)
@@ -20,9 +28,15 @@ class Tag < ActiveRecord::Base
   end
 
   def after_update
-    self.old_parent.destroy
-    self.children.map do |x|
-      x.update_attribute(:fullname,fullname + '>' + x.name)
+    if fullname_changed?
+      self.old_parent.destroy if self.old_parent
+
+      # Change children's fullname
+      self.children.map do |x|
+        x.update_attribute(:fullname,fullname + '>' + x.name)
+      end
+
+      @orphons_id.map {|x| Tag.delete(x)} if @orphons_id   # Remove orphon tag
     end
   end
 
