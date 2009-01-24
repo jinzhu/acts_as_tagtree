@@ -73,6 +73,7 @@ module ActiveRecord #:nodoc:
           end
 
           id_range = (all_id - [self.id]).uniq.join(',')
+          return [] if id_range.empty?
 
           self.class.all(:conditions =>["id IN (#{id_range})"],:order => "#{key} #{reverse}",:limit => num.join(','))
         end

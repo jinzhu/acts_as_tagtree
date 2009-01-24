@@ -28,10 +28,15 @@ class TopicTest < ActiveSupport::TestCase
         @vim = Topic.create(:title => 'hello vim',:tag_list => 'linux>vim; editor>best')
         @vimrails = Topic.create(:title => 'rails.vim',:tag_list => 'linux>vim>plugin')
         @emacs = Topic.create(:title => 'emacs',:tag_list => 'linux>emacs; editor>best')
+        @unrelated = Topic.create(:title => 'unrelated')
       end
 
       should "should find emacs use vim" do
         assert_equal @vim.find_related,[@vimrails,@emacs]
+      end
+
+      should "should correct if have no related item" do
+        assert_equal @unrelated.find_related,[]
       end
 
       should "test reverse" do
