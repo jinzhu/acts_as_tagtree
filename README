@@ -41,8 +41,26 @@ ActsAsTagtree
          7       plugin   linux>emacs>plugin  6
 
 ------------------------------
-  # Find Related Topic: limit 10,offest 5,order by 'updated_at',DESC
-  t.find_related(:num => [5,10],:key => 'updated_at',:reverse => true)
+
+=== Advance tagging
+
+ Related Topic ( modle.find_related )
+   # Find Related Topic: limit 10,offest 5,order by 'updated_at',DESC
+   t.find_related(:num => [5,10],:key => 'updated_at',:reverse => true)
+
+ All Topic     ( tag.all_*** )
+   Topic.create(:title => 'vim', :tag_list => 'linux')
+   Topic.create(:title => 'emacs',:tag_list => 'linux')
+ 
+   Tag.find_by_fullname('linux').all_topics => [Topic(:vim),Topic(:emacs)]
+
+=== Helper
+
+  module ApplicationHelper
+    include TagsHelper
+  end
+  # View Usage
+  <%= taglist %>
 
 === Caching
 
@@ -53,4 +71,5 @@ ActsAsTagtree
   end
 
 ==
+
 Copyright (c) 2008 <Zhang Jinzhu>, released under the MIT license
