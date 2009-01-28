@@ -228,5 +228,6 @@ class TagTest < ActiveSupport::TestCase
     topic = Topic.create(:title => 't2',:tag_list => 'linux')
     topic = Topic.create(:title => 't3',:tag_list => 'linux')
     assert_equal tag.all_topics.size,3
+    assert_equal tag.all_topics.first.class,Topic
   end
 end

@@ -103,12 +103,13 @@ class Tag < ActiveRecord::Base
     # SELECT * FROM articles,taggings WHERE tag_id IN (...) AND
     # taggable_id = articles.id AND taggable_type = 'Article'
     if m.to_s.match(/all_(\w+)/)
-      return Tag.find_by_sql([" SELECT * FROM #{$1},taggings
-                    WHERE taggings.tag_id IN (?)
-                      AND taggable_id     =  #{$1}.id
-                      AND taggable_type   =  ?",
-                      children_with_self.map(&:id).join(','),
-                      $1.singularize.capitalize])
+      # result's class is Article
+      return eval("#{$1.singularize.capitalize}.find_by_sql(['
+       SELECT * FROM taggings,#{$1}
+       WHERE taggings.tag_id IN (#{children_with_self.map(&:id).join(',')})
+         AND taggable_id     =  #{$1}.id
+         AND taggable_type   =  \"#{$1.singularize.capitalize}\"
+         '])")
     end
 
     super
