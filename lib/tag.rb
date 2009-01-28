@@ -92,6 +92,10 @@ class Tag < ActiveRecord::Base
     taggings.size > 0
   end
 
+  def to_param
+    fullname
+  end
+
   def method_missing(m,*args)
 
     # tag1.all_articles find all tagged articles by tag1 and tag1's children
