@@ -99,13 +99,11 @@ class Tag < ActiveRecord::Base
     # SELECT * FROM articles,taggings WHERE tag_id IN (...) AND
     # taggable_id = articles.id AND taggable_type = 'Article'
     if m.to_s.match(/all_(\w+)/)
-      return Tag.find_by_sql([" SELECT * FROM ?,taggings
+      return Tag.find_by_sql([" SELECT * FROM #{$1},taggings
                     WHERE taggings.tag_id IN (?)
-                      AND taggable_id     =  ?.id
+                      AND taggable_id     =  #{$1}.id
                       AND taggable_type   =  ?",
-                      $1,
                       children_with_self.map(&:id).join(','),
-                      $1,
                       $1.singularize.capitalize])
     end
 
