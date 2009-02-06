@@ -47,7 +47,8 @@ module ActiveRecord #:nodoc:
         end
 
         def save_tags
-          @tag_list ||= []
+          # when doesn't update tag_list,there will be no @tag_list,return
+          return unless @tag_list
           new_tags_name = @tag_list - tags.map(&:fullname)
           outdate_tags = tags.reject {|tag| @tag_list.include?(tag.fullname)}
           self.class.transaction do
