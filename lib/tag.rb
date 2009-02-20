@@ -105,13 +105,12 @@ class Tag < ActiveRecord::Base
     if m.to_s.match(/all_(\w+)/)
       # result's class is Article
       return eval("#{$1.singularize.capitalize}.find_by_sql(['
-       SELECT * FROM taggings,#{$1}
+       SELECT #{$1}.* FROM taggings,#{$1}
        WHERE taggings.tag_id IN (#{children_with_self.map(&:id).join(',')})
          AND taggable_id     =  #{$1}.id
          AND taggable_type   =  \"#{$1.singularize.capitalize}\"
          '])")
     end
-
     super
   end
 end

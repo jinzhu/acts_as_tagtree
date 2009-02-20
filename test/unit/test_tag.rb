@@ -1,8 +1,7 @@
 require 'test/test_helper'
 
 class TagTest < ActiveSupport::TestCase
-  should_require_attributes :name,:fullname
-  should_require_unique_attributes :fullname
+  should_validate_presence_of :name,:fullname
 
   context "When create single tag from scratch" do
     tags = [
