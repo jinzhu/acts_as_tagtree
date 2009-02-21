@@ -16,6 +16,7 @@ class ActsAsTagtreeMigration < ActiveRecord::Migration
     add_index :tags,[:name, :fullname]
     add_index :tags,:name
     add_index :tags,:fullname
+    add_index :tags,:parent_id
 
     add_index :taggings, :tag_id
     add_index :taggings, [:taggable_id, :taggable_type]
