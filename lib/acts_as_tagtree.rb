@@ -41,9 +41,6 @@ module ActiveRecord #:nodoc:
 
         def tag_list=(value)
           @tag_list = TagList.format_tag(value)
-          if self.class.caching_tag_list?
-            self[self.class.cached_tag_list_column]= @tag_list.join(';')
-          end
         end
 
         def save_tags
@@ -57,6 +54,10 @@ module ActiveRecord #:nodoc:
             end
             new_tags_name.each do |name|
               tags << Tag.find_or_create_with_name(name)
+            end
+
+            if self.class.caching_tag_list?
+              self[self.class.cached_tag_list_column]= tags.join(';')
             end
           end
         end
